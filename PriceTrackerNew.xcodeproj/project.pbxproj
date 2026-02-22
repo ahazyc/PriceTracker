@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		540919DD2F4BC65D00756A05 /* PriceTrackerShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 540919D32F4BC65D00756A05 /* PriceTrackerShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		540919AF2F4BC2CC00756A05 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -21,13 +25,45 @@
 			remoteGlobalIDString = 5409199D2F4BC2CA00756A05;
 			remoteInfo = PriceTrackerNew;
 		};
+		540919DB2F4BC65D00756A05 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 540919962F4BC2CA00756A05 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 540919D22F4BC65D00756A05;
+			remoteInfo = PriceTrackerShare;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		540919E22F4BC65D00756A05 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				540919DD2F4BC65D00756A05 /* PriceTrackerShare.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		5409199E2F4BC2CA00756A05 /* PriceTrackerNew.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PriceTrackerNew.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		540919AE2F4BC2CC00756A05 /* PriceTrackerNewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PriceTrackerNewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		540919B82F4BC2CC00756A05 /* PriceTrackerNewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PriceTrackerNewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		540919D32F4BC65D00756A05 /* PriceTrackerShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PriceTrackerShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		540919DE2F4BC65D00756A05 /* Exceptions for "PriceTrackerShare" folder in "PriceTrackerShare" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 540919D22F4BC65D00756A05 /* PriceTrackerShare */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		540919A02F4BC2CA00756A05 /* PriceTrackerNew */ = {
@@ -43,6 +79,14 @@
 		540919BB2F4BC2CC00756A05 /* PriceTrackerNewUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = PriceTrackerNewUITests;
+			sourceTree = "<group>";
+		};
+		540919D42F4BC65D00756A05 /* PriceTrackerShare */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				540919DE2F4BC65D00756A05 /* Exceptions for "PriceTrackerShare" folder in "PriceTrackerShare" target */,
+			);
+			path = PriceTrackerShare;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -69,6 +113,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		540919D02F4BC65D00756A05 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -78,6 +129,7 @@
 				540919A02F4BC2CA00756A05 /* PriceTrackerNew */,
 				540919B12F4BC2CC00756A05 /* PriceTrackerNewTests */,
 				540919BB2F4BC2CC00756A05 /* PriceTrackerNewUITests */,
+				540919D42F4BC65D00756A05 /* PriceTrackerShare */,
 				5409199F2F4BC2CA00756A05 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -88,6 +140,7 @@
 				5409199E2F4BC2CA00756A05 /* PriceTrackerNew.app */,
 				540919AE2F4BC2CC00756A05 /* PriceTrackerNewTests.xctest */,
 				540919B82F4BC2CC00756A05 /* PriceTrackerNewUITests.xctest */,
+				540919D32F4BC65D00756A05 /* PriceTrackerShare.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -102,10 +155,12 @@
 				5409199A2F4BC2CA00756A05 /* Sources */,
 				5409199B2F4BC2CA00756A05 /* Frameworks */,
 				5409199C2F4BC2CA00756A05 /* Resources */,
+				540919E22F4BC65D00756A05 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				540919DC2F4BC65D00756A05 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				540919A02F4BC2CA00756A05 /* PriceTrackerNew */,
@@ -163,6 +218,29 @@
 			productReference = 540919B82F4BC2CC00756A05 /* PriceTrackerNewUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		540919D22F4BC65D00756A05 /* PriceTrackerShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 540919DF2F4BC65D00756A05 /* Build configuration list for PBXNativeTarget "PriceTrackerShare" */;
+			buildPhases = (
+				540919CF2F4BC65D00756A05 /* Sources */,
+				540919D02F4BC65D00756A05 /* Frameworks */,
+				540919D12F4BC65D00756A05 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				540919A02F4BC2CA00756A05 /* PriceTrackerNew */,
+				540919D42F4BC65D00756A05 /* PriceTrackerShare */,
+			);
+			name = PriceTrackerShare;
+			packageProductDependencies = (
+			);
+			productName = PriceTrackerShare;
+			productReference = 540919D32F4BC65D00756A05 /* PriceTrackerShare.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -184,6 +262,9 @@
 						CreatedOnToolsVersion = 16.2;
 						TestTargetID = 5409199D2F4BC2CA00756A05;
 					};
+					540919D22F4BC65D00756A05 = {
+						CreatedOnToolsVersion = 16.2;
+					};
 				};
 			};
 			buildConfigurationList = 540919992F4BC2CA00756A05 /* Build configuration list for PBXProject "PriceTrackerNew" */;
@@ -203,6 +284,7 @@
 				5409199D2F4BC2CA00756A05 /* PriceTrackerNew */,
 				540919AD2F4BC2CC00756A05 /* PriceTrackerNewTests */,
 				540919B72F4BC2CC00756A05 /* PriceTrackerNewUITests */,
+				540919D22F4BC65D00756A05 /* PriceTrackerShare */,
 			);
 		};
 /* End PBXProject section */
@@ -223,6 +305,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		540919B62F4BC2CC00756A05 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		540919D12F4BC65D00756A05 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -253,6 +342,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		540919CF2F4BC65D00756A05 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -265,6 +361,11 @@
 			isa = PBXTargetDependency;
 			target = 5409199D2F4BC2CA00756A05 /* PriceTrackerNew */;
 			targetProxy = 540919B92F4BC2CC00756A05 /* PBXContainerItemProxy */;
+		};
+		540919DC2F4BC65D00756A05 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 540919D22F4BC65D00756A05 /* PriceTrackerShare */;
+			targetProxy = 540919DB2F4BC65D00756A05 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -321,7 +422,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -378,7 +479,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -393,6 +494,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PriceTrackerNew/PriceTrackerNew.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PriceTrackerNew/Preview Content\"";
@@ -413,7 +515,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Debug;
 		};
@@ -422,6 +524,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = PriceTrackerNew/PriceTrackerNew.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PriceTrackerNew/Preview Content\"";
@@ -442,7 +545,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
@@ -454,13 +557,13 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8H85W7LT66;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ahazyc.PriceTrackerNewTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PriceTrackerNew.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PriceTrackerNew";
 			};
 			name = Debug;
@@ -473,13 +576,13 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8H85W7LT66;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ahazyc.PriceTrackerNewTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PriceTrackerNew.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PriceTrackerNew";
 			};
 			name = Release;
@@ -496,7 +599,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_TARGET_NAME = PriceTrackerNew;
 			};
 			name = Debug;
@@ -513,8 +616,60 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1";
 				TEST_TARGET_NAME = PriceTrackerNew;
+			};
+			name = Release;
+		};
+		540919E02F4BC65D00756A05 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PriceTrackerShare/PriceTrackerShare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8H85W7LT66;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PriceTrackerShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PriceTrackerShare;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ahazyc.PriceTrackerNew.PriceTrackerShare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1";
+			};
+			name = Debug;
+		};
+		540919E12F4BC65D00756A05 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = PriceTrackerShare/PriceTrackerShare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8H85W7LT66;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PriceTrackerShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PriceTrackerShare;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ahazyc.PriceTrackerNew.PriceTrackerShare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1";
 			};
 			name = Release;
 		};
@@ -553,6 +708,15 @@
 			buildConfigurations = (
 				540919C92F4BC2CC00756A05 /* Debug */,
 				540919CA2F4BC2CC00756A05 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		540919DF2F4BC65D00756A05 /* Build configuration list for PBXNativeTarget "PriceTrackerShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				540919E02F4BC65D00756A05 /* Debug */,
+				540919E12F4BC65D00756A05 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
