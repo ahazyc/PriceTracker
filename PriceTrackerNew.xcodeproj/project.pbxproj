@@ -1,0 +1,563 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		540919AF2F4BC2CC00756A05 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 540919962F4BC2CA00756A05 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5409199D2F4BC2CA00756A05;
+			remoteInfo = PriceTrackerNew;
+		};
+		540919B92F4BC2CC00756A05 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 540919962F4BC2CA00756A05 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 5409199D2F4BC2CA00756A05;
+			remoteInfo = PriceTrackerNew;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		5409199E2F4BC2CA00756A05 /* PriceTrackerNew.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PriceTrackerNew.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		540919AE2F4BC2CC00756A05 /* PriceTrackerNewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PriceTrackerNewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		540919B82F4BC2CC00756A05 /* PriceTrackerNewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PriceTrackerNewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		540919A02F4BC2CA00756A05 /* PriceTrackerNew */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PriceTrackerNew;
+			sourceTree = "<group>";
+		};
+		540919B12F4BC2CC00756A05 /* PriceTrackerNewTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PriceTrackerNewTests;
+			sourceTree = "<group>";
+		};
+		540919BB2F4BC2CC00756A05 /* PriceTrackerNewUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PriceTrackerNewUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5409199B2F4BC2CA00756A05 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		540919AB2F4BC2CC00756A05 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		540919B52F4BC2CC00756A05 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		540919952F4BC2CA00756A05 = {
+			isa = PBXGroup;
+			children = (
+				540919A02F4BC2CA00756A05 /* PriceTrackerNew */,
+				540919B12F4BC2CC00756A05 /* PriceTrackerNewTests */,
+				540919BB2F4BC2CC00756A05 /* PriceTrackerNewUITests */,
+				5409199F2F4BC2CA00756A05 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5409199F2F4BC2CA00756A05 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5409199E2F4BC2CA00756A05 /* PriceTrackerNew.app */,
+				540919AE2F4BC2CC00756A05 /* PriceTrackerNewTests.xctest */,
+				540919B82F4BC2CC00756A05 /* PriceTrackerNewUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		5409199D2F4BC2CA00756A05 /* PriceTrackerNew */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 540919C22F4BC2CC00756A05 /* Build configuration list for PBXNativeTarget "PriceTrackerNew" */;
+			buildPhases = (
+				5409199A2F4BC2CA00756A05 /* Sources */,
+				5409199B2F4BC2CA00756A05 /* Frameworks */,
+				5409199C2F4BC2CA00756A05 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				540919A02F4BC2CA00756A05 /* PriceTrackerNew */,
+			);
+			name = PriceTrackerNew;
+			packageProductDependencies = (
+			);
+			productName = PriceTrackerNew;
+			productReference = 5409199E2F4BC2CA00756A05 /* PriceTrackerNew.app */;
+			productType = "com.apple.product-type.application";
+		};
+		540919AD2F4BC2CC00756A05 /* PriceTrackerNewTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 540919C52F4BC2CC00756A05 /* Build configuration list for PBXNativeTarget "PriceTrackerNewTests" */;
+			buildPhases = (
+				540919AA2F4BC2CC00756A05 /* Sources */,
+				540919AB2F4BC2CC00756A05 /* Frameworks */,
+				540919AC2F4BC2CC00756A05 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				540919B02F4BC2CC00756A05 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				540919B12F4BC2CC00756A05 /* PriceTrackerNewTests */,
+			);
+			name = PriceTrackerNewTests;
+			packageProductDependencies = (
+			);
+			productName = PriceTrackerNewTests;
+			productReference = 540919AE2F4BC2CC00756A05 /* PriceTrackerNewTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		540919B72F4BC2CC00756A05 /* PriceTrackerNewUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 540919C82F4BC2CC00756A05 /* Build configuration list for PBXNativeTarget "PriceTrackerNewUITests" */;
+			buildPhases = (
+				540919B42F4BC2CC00756A05 /* Sources */,
+				540919B52F4BC2CC00756A05 /* Frameworks */,
+				540919B62F4BC2CC00756A05 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				540919BA2F4BC2CC00756A05 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				540919BB2F4BC2CC00756A05 /* PriceTrackerNewUITests */,
+			);
+			name = PriceTrackerNewUITests;
+			packageProductDependencies = (
+			);
+			productName = PriceTrackerNewUITests;
+			productReference = 540919B82F4BC2CC00756A05 /* PriceTrackerNewUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		540919962F4BC2CA00756A05 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					5409199D2F4BC2CA00756A05 = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					540919AD2F4BC2CC00756A05 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 5409199D2F4BC2CA00756A05;
+					};
+					540919B72F4BC2CC00756A05 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 5409199D2F4BC2CA00756A05;
+					};
+				};
+			};
+			buildConfigurationList = 540919992F4BC2CA00756A05 /* Build configuration list for PBXProject "PriceTrackerNew" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 540919952F4BC2CA00756A05;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 5409199F2F4BC2CA00756A05 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5409199D2F4BC2CA00756A05 /* PriceTrackerNew */,
+				540919AD2F4BC2CC00756A05 /* PriceTrackerNewTests */,
+				540919B72F4BC2CC00756A05 /* PriceTrackerNewUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5409199C2F4BC2CA00756A05 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		540919AC2F4BC2CC00756A05 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		540919B62F4BC2CC00756A05 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5409199A2F4BC2CA00756A05 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		540919AA2F4BC2CC00756A05 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		540919B42F4BC2CC00756A05 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		540919B02F4BC2CC00756A05 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5409199D2F4BC2CA00756A05 /* PriceTrackerNew */;
+			targetProxy = 540919AF2F4BC2CC00756A05 /* PBXContainerItemProxy */;
+		};
+		540919BA2F4BC2CC00756A05 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 5409199D2F4BC2CA00756A05 /* PriceTrackerNew */;
+			targetProxy = 540919B92F4BC2CC00756A05 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		540919C02F4BC2CC00756A05 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		540919C12F4BC2CC00756A05 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		540919C32F4BC2CC00756A05 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"PriceTrackerNew/Preview Content\"";
+				DEVELOPMENT_TEAM = 8H85W7LT66;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ahazyc.PriceTrackerNew;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		540919C42F4BC2CC00756A05 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"PriceTrackerNew/Preview Content\"";
+				DEVELOPMENT_TEAM = 8H85W7LT66;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ahazyc.PriceTrackerNew;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		540919C62F4BC2CC00756A05 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8H85W7LT66;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ahazyc.PriceTrackerNewTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PriceTrackerNew.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PriceTrackerNew";
+			};
+			name = Debug;
+		};
+		540919C72F4BC2CC00756A05 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8H85W7LT66;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ahazyc.PriceTrackerNewTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PriceTrackerNew.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PriceTrackerNew";
+			};
+			name = Release;
+		};
+		540919C92F4BC2CC00756A05 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8H85W7LT66;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ahazyc.PriceTrackerNewUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PriceTrackerNew;
+			};
+			name = Debug;
+		};
+		540919CA2F4BC2CC00756A05 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8H85W7LT66;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = ahazyc.PriceTrackerNewUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PriceTrackerNew;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		540919992F4BC2CA00756A05 /* Build configuration list for PBXProject "PriceTrackerNew" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				540919C02F4BC2CC00756A05 /* Debug */,
+				540919C12F4BC2CC00756A05 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		540919C22F4BC2CC00756A05 /* Build configuration list for PBXNativeTarget "PriceTrackerNew" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				540919C32F4BC2CC00756A05 /* Debug */,
+				540919C42F4BC2CC00756A05 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		540919C52F4BC2CC00756A05 /* Build configuration list for PBXNativeTarget "PriceTrackerNewTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				540919C62F4BC2CC00756A05 /* Debug */,
+				540919C72F4BC2CC00756A05 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		540919C82F4BC2CC00756A05 /* Build configuration list for PBXNativeTarget "PriceTrackerNewUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				540919C92F4BC2CC00756A05 /* Debug */,
+				540919CA2F4BC2CC00756A05 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 540919962F4BC2CA00756A05 /* Project object */;
+}
