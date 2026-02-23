@@ -8,19 +8,25 @@ struct ProductInfo {
 
 class UniversalParser {
     func fetchProduct(from urlString: String) async -> ProductInfo? {
-        print("DEBUG: [Parser] Starting analysis for URL: \(urlString)")
+        // 🚨 Fix: Ensure the URL has a scheme (https://)
+        var finalURLString = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !finalURLString.lowercased().hasPrefix("http://") && !finalURLString.lowercased().hasPrefix("https://") {
+            finalURLString = "https://" + finalURLString
+        }
+        
+        print("DEBUG: [Parser] Starting analysis for URL: \(finalURLString)")
         
         // Amazon support
-        if urlString.contains("amazon.") {
+        if finalURLString.contains("amazon.") {
             print("DEBUG: [Parser] Entering Amazon specific parser")
-            if let info = await fetchViaAmazonHTML(urlString) {
+            if let info = await fetchViaAmazonHTML(finalURLString) {
                 return info
             }
         }
         
         // Shopify
-        if urlString.contains("products/") {
-            let baseParams = urlString.components(separatedBy: "?")[0]
+        if finalURLString.contains("products/") {
+            let baseParams = finalURLString.components(separatedBy: "?")[0]
             let jsonURL = baseParams + ".js"
             if let info = await fetchViaShopifyJSON(jsonURL) {
                 return info
@@ -28,13 +34,13 @@ class UniversalParser {
         }
         
         // Corbetts
-        if urlString.contains("corbetts.com") {
-            if let info = await fetchViaCorbettsHTML(urlString) {
+        if finalURLString.contains("corbetts.com") {
+            if let info = await fetchViaCorbettsHTML(finalURLString) {
                 return info
             }
         }
         
-        return await fetchViaHTML(urlString)
+        return await fetchViaHTML(finalURLString)
     }
     
     private func fetchViaAmazonHTML(_ urlString: String) async -> ProductInfo? {
