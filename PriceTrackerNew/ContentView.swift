@@ -358,32 +358,30 @@ struct ProductCardView: View {
             
             Spacer()
             
-            VStack(alignment: .trailing, spacing: 6) {
-                // Top Right: Current Price (Priority display)
+            VStack(alignment: .trailing, spacing: 4) {
+                // Top: Large Current Price
                 Text("$\(product.currentPrice, specifier: "%.2f")")
                     .font(.system(.title3, design: .rounded))
                     .fontWeight(.bold)
                     .foregroundColor(isPriceDropped ? .red : .primary)
                     .lineLimit(1)
-                    .layoutPriority(1)
                 
-                // Bottom Right: Discount Badge and Recorded Price
-                HStack(spacing: 6) {
-                    if isPriceDropped {
-                        Text("\(discountPercentage)% OFF")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.red)
-                            .cornerRadius(4)
-                    }
-                    
-                    Text("Recorded: $\(product.initialPrice, specifier: "%.2f")")
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
+                // Middle: Discount Badge (only if applicable)
+                if isPriceDropped {
+                    Text("\(discountPercentage)% OFF")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.red)
+                        .cornerRadius(4)
                 }
+                
+                // Bottom: Original Recorded Price
+                Text("Recorded: $\(product.initialPrice, specifier: "%.2f")")
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+                    .lineLimit(1)
             }
         }
         .padding(16)
