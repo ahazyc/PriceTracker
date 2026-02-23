@@ -358,32 +358,32 @@ struct ProductCardView: View {
             
             Spacer()
             
-            VStack(alignment: .trailing, spacing: 2) {
-                HStack(spacing: 4) {
+            VStack(alignment: .trailing, spacing: 6) {
+                // Top Right: Current Price (Priority display)
+                Text("$\(product.currentPrice, specifier: "%.2f")")
+                    .font(.system(.title3, design: .rounded))
+                    .fontWeight(.bold)
+                    .foregroundColor(isPriceDropped ? .red : .primary)
+                    .lineLimit(1)
+                    .layoutPriority(1)
+                
+                // Bottom Right: Discount Badge and Recorded Price
+                HStack(spacing: 6) {
                     if isPriceDropped {
                         Text("\(discountPercentage)% OFF")
                             .font(.system(size: 10, weight: .bold))
                             .foregroundColor(.white)
-                            .padding(.horizontal, 4)
+                            .padding(.horizontal, 6)
                             .padding(.vertical, 2)
                             .background(Color.red)
                             .cornerRadius(4)
-                            .fixedSize(horizontal: true, vertical: false)
                     }
                     
-                    Text("$\(product.currentPrice, specifier: "%.2f")")
-                        .font(.system(.title3, design: .rounded))
-                        .fontWeight(.bold)
-                        .foregroundColor(isPriceDropped ? .red : .primary)
+                    Text("Recorded: $\(product.initialPrice, specifier: "%.2f")")
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
                         .lineLimit(1)
-                        .minimumScaleFactor(0.7)
                 }
-                
-                Text("Recorded: $\(product.initialPrice, specifier: "%.2f")")
-                    .font(.system(size: 10))
-                    .foregroundColor(.secondary)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
             }
         }
         .padding(16)
