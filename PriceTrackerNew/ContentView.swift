@@ -220,29 +220,42 @@ struct HomeView: View {
                 )
                 newProduct.id = productID
                 
-                await MainActor.run {
-                    modelContext.insert(newProduct)
-                    urlInput = ""
-                    isAnalyzing = false
-                    WidgetCenter.shared.reloadAllTimelines()
-                }
-            } else {
-                await MainActor.run { isAnalyzing = false }
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        for index in offsets {
-            let product = products[index]
-            if let localName = product.localImageName {
-                ImageStorage.deleteImage(fileName: localName)
-            }
-            modelContext.delete(product)
-        }
-        updateSortOrders()
-        WidgetCenter.shared.reloadAllTimelines()
-    }
+                                await MainActor.run {
+                                    modelContext.insert(newProduct)
+                                    urlInput = ""
+                                    isAnalyzing = false
+                                    
+                                    // 🚀 Signal Widget to update via UserDefaults
+                                    if let userDefaults = UserDefaults(suiteName: "group.ahazyc.PriceTracker") {
+                                        userDefaults.set(Date(), forKey: "last_update_signal")
+                                        userDefaults.synchronize()
+                                    }
+                                    WidgetCenter.shared.reloadAllTimelines()
+                                }
+                            } else {
+                                await MainActor.run {
+                                    isAnalyzing = false
+                                }
+                            }
+                        }
+                    }
+                
+                    private func deleteItems(offsets: IndexSet) {
+                        for index in offsets {
+                            let product = products[index]
+                            if let localName = product.localImageName {
+                                ImageStorage.deleteImage(fileName: localName)
+                            }
+                            modelContext.delete(product)
+                        }
+                        updateSortOrders()
+                        
+                        // 🚀 Signal Widget
+                        if let userDefaults = UserDefaults(suiteName: "group.ahazyc.PriceTracker") {
+                            userDefaults.set(Date(), forKey: "last_update_signal")
+                        }
+                        WidgetCenter.shared.reloadAllTimelines()
+                    }
     
     private func moveItems(from source: IndexSet, to destination: Int) {
         var revisedItems = products

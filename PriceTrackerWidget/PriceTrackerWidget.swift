@@ -11,48 +11,61 @@ struct ProductEntry {
 }
 
 struct Provider: TimelineProvider {
-    static var sharedContainer: ModelContainer? = {
+    @MainActor
+    private func getContext() -> ModelContext? {
         let schema = Schema([Product.self])
         let config = ModelConfiguration(groupContainer: .identifier("group.ahazyc.PriceTracker"))
-        return try? ModelContainer(for: schema, configurations: [config])
-    }()
+        // Force a new container instance to bypass cache
+        return try? ModelContainer(for: schema, configurations: [config]).mainContext
+    }
 
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), productEntries: [])
+        SimpleEntry(date: Date(), productEntries: [], lastSync: Date())
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        completion(SimpleEntry(date: Date(), productEntries: fetchProducts(limit: 8)))
+        Task {
+            let entries = await fetchProducts()
+            completion(SimpleEntry(date: Date(), productEntries: entries, lastSync: Date()))
+        }
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        let entries = fetchProducts(limit: 8)
-        // Refresh every 15 minutes or when notified
-        let timeline = Timeline(entries: [SimpleEntry(date: Date(), productEntries: entries)], policy: .atEnd)
-        completion(timeline)
+        Task {
+            // Check for the signal from main app (optional, but helps debugging)
+            let lastSignal = UserDefaults(suiteName: "group.ahazyc.PriceTracker")?.object(forKey: "last_update_signal") as? Date ?? Date()
+            
+            let entries = await fetchProducts()
+            
+            // Create an entry that displays NOW
+            let entry = SimpleEntry(date: Date(), productEntries: entries, lastSync: lastSignal)
+            
+            // Request next update in 15 mins
+            let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date())!
+            let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
+            
+            completion(timeline)
+        }
     }
 
-    private func fetchProducts(limit: Int) -> [ProductEntry] {
-        guard let container = Self.sharedContainer else { return [] }
-        let context = ModelContext(container)
-        
-        // 🚀 Fix: Use sortOrder to match Main App exactly
+    @MainActor
+    private func fetchProducts() -> [ProductEntry] {
+        guard let context = getContext() else { return [] }
         let descriptor = FetchDescriptor<Product>(sortBy: [SortDescriptor(\.sortOrder, order: .forward)])
         
         do {
             let products = try context.fetch(descriptor)
-            print("DEBUG: [Widget] Fetched \(products.count) products from DB")
-            return products.prefix(limit).map { 
+            return products.prefix(8).map { product in
                 ProductEntry(
-                    id: $0.id, 
-                    name: $0.name, 
-                    currentPrice: $0.currentPrice, 
-                    initialPrice: $0.initialPrice, 
-                    localImageName: $0.localImageName
-                ) 
+                    id: product.id,
+                    name: product.name,
+                    currentPrice: product.currentPrice,
+                    initialPrice: product.initialPrice,
+                    localImageName: product.localImageName
+                )
             }
-        } catch { 
-            return [] 
+        } catch {
+            return []
         }
     }
 }
@@ -60,16 +73,17 @@ struct Provider: TimelineProvider {
 struct SimpleEntry: TimelineEntry {
     let date: Date
     let productEntries: [ProductEntry]
+    let lastSync: Date
 }
 
 struct ProductSquareCell: View {
     let entry: ProductEntry?
     
     var body: some View {
-        VStack(spacing: 2) {
-            if let entry = entry {
-                let isLow = entry.currentPrice < entry.initialPrice
-                
+        if let entry = entry {
+            let isLow = entry.currentPrice < entry.initialPrice
+            VStack(spacing: 2) {
+                // Image
                 ZStack {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(Color.secondary.opacity(0.1))
@@ -95,6 +109,7 @@ struct ProductSquareCell: View {
                 Text(entry.name)
                     .font(.system(size: 8, weight: .bold))
                     .lineLimit(1)
+                    .foregroundColor(.primary)
                 
                 Text(isLow ? "SALE" : "BASE")
                     .font(.system(size: 6, weight: .heavy))
@@ -103,24 +118,17 @@ struct ProductSquareCell: View {
                     .padding(.vertical, 1)
                     .background(isLow ? Color.red : Color.blue)
                     .cornerRadius(2)
-            } else {
-                // 🚀 Improved: Visible Placeholder for empty slots
-                VStack(spacing: 4) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 10))
-                    Text("Empty")
-                        .font(.system(size: 6))
-                }
-                .foregroundColor(.gray.opacity(0.3))
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(isLow ? Color.red.opacity(0.08) : Color.blue.opacity(0.03))
+            .cornerRadius(8)
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(isLow ? Color.red.opacity(0.4) : Color.blue.opacity(0.2), lineWidth: 1)
+            )
+        } else {
+            Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(entry != nil ? (entry!.currentPrice < entry!.initialPrice ? Color.red.opacity(0.08) : Color.blue.opacity(0.03)) : Color.clear)
-        .cornerRadius(8)
-        .overlay(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(entry != nil ? (entry!.currentPrice < entry!.initialPrice ? Color.red.opacity(0.4) : Color.blue.opacity(0.2)) : Color.gray.opacity(0.1), lineWidth: 1)
-        )
     }
     
     private func statusIcon(isLow: Bool) -> some View {
@@ -137,10 +145,7 @@ struct PriceTrackerWidgetEntryView : View {
     var body: some View {
         VStack(spacing: 6) {
             if entry.productEntries.isEmpty {
-                VStack(spacing: 4) {
-                    Image(systemName: "cart.badge.plus").font(.title2)
-                    Text("Add gear in App").font(.system(size: 10))
-                }.foregroundColor(.secondary)
+                Text("No Items").font(.caption2).foregroundColor(.secondary)
             } else {
                 if family == .systemSmall {
                     VStack(spacing: 6) {
@@ -170,6 +175,14 @@ struct PriceTrackerWidgetEntryView : View {
                     }
                 }
             }
+            
+            // 🚀 Last Sync Indicator
+            HStack {
+                Spacer()
+                Text(entry.lastSync, style: .time)
+                    .font(.system(size: 6))
+                    .foregroundColor(.secondary.opacity(0.5))
+            }
         }
         .padding(8)
         .containerBackground(for: .widget) { Color(UIColor.systemBackground) }
@@ -187,7 +200,7 @@ struct PriceTrackerWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             PriceTrackerWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Gear Tracker")
+        .configurationDisplayName("Gear Monitor")
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabled()
     }

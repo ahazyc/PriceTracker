@@ -15,19 +15,16 @@ class UniversalParser {
         
         print("DEBUG: [Parser] Starting analysis for URL: \(finalURLString)")
         
-        // Amazon support
         if finalURLString.contains("amazon.") {
             if let info = await fetchViaAmazonHTML(finalURLString) { return info }
         }
         
-        // Shopify
         if finalURLString.contains("products/") {
             let baseParams = finalURLString.components(separatedBy: "?")[0]
             let jsonURL = baseParams + ".js"
             if let info = await fetchViaShopifyJSON(jsonURL) { return info }
         }
         
-        // Corbetts
         if finalURLString.contains("corbetts.com") {
             if let info = await fetchViaCorbettsHTML(finalURLString) { return info }
         }
@@ -35,7 +32,7 @@ class UniversalParser {
         return await fetchViaHTML(finalURLString)
     }
     
-    // ... Amazon and Shopify methods remain unchanged ...
+    // ... Amazon and Shopify methods unchanged ...
     private func fetchViaAmazonHTML(_ urlString: String) async -> ProductInfo? {
         guard let url = URL(string: urlString) else { return nil }
         var request = URLRequest(url: url)
@@ -128,23 +125,24 @@ class UniversalParser {
             guard let html = String(data: data, encoding: .utf8) else { return nil }
             let range = NSRange(html.startIndex..<html.endIndex, in: html)
 
-            // 🚀 Improved: More relaxed regex for Corbetts price
-            // Tries to match "Now: ... $1,149.99" allowing for extra text/spaces
+            // 🚀 Improved: Scoped regex to target the "Now" price specifically
+            // Corbetts structure usually: "Now: <span class='price price--withoutTax'>CAD $1,149.99</span>"
+            // We look for "Now:" followed closely by "CAD $"
             let pricePatterns = [
-                #"Now:.*?\$([0-9,.]+)"#,
-                #"CAD\s*\$([0-9,.]+)"#,
-                #"class="price--withoutTax">\$([0-9,.]+)"#
+                #"Now:.*?CAD\s*\$([0-9,.]+)"#,  // Most specific: "Now:... CAD $1149.99"
+                #"class="price--withoutTax">CAD\s*\$([0-9,.]+)"#, // Fallback: CSS class
+                #"meta property="product:price:amount" content="([0-9.]+)"# // Schema fallback
             ]
             
             var extractedPrice: Double = 0.0
             for pattern in pricePatterns {
-                let regex = try NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
+                let regex = try NSRegularExpression(pattern: pattern, options: [.caseInsensitive, .dotMatchesLineSeparators])
                 if let match = regex.firstMatch(in: html, options: [], range: range) {
                     if let pRange = Range(match.range(at: 1), in: html) {
                         let pStr = html[pRange].replacingOccurrences(of: ",", with: "")
                         extractedPrice = Double(pStr) ?? 0.0
-                        if extractedPrice > 0 { 
-                            print("DEBUG: [Corbetts] Found price: \(extractedPrice)")
+                        if extractedPrice > 100 { // Basic sanity check: ski gear shouldn't be $5
+                            print("DEBUG: [Corbetts] Found valid price: \(extractedPrice)")
                             break 
                         }
                     }
