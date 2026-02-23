@@ -43,13 +43,15 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Home View
+// MARK: - Home View with Management Features
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \Product.addedDate, order: .reverse) var products: [Product]
+    // Query sorted by our custom sortOrder
+    @Query(sort: \Product.sortOrder) var products: [Product]
     
     @State private var urlInput: String = ""
     @State private var isAnalyzing: Bool = false
+    @State private var editingProduct: Product? = nil // Tracks the product currently being renamed
     
     var body: some View {
         ZStack {
@@ -75,8 +77,17 @@ struct HomeView: View {
                                 .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
+                                .swipeActions(edge: .leading) {
+                                    Button {
+                                        editingProduct = product
+                                    } label: {
+                                        Label("Rename", systemImage: "pencil")
+                                    }
+                                    .tint(.orange)
+                                }
                         }
                         .onDelete(perform: deleteItems)
+                        .onMove(perform: moveItems) // Enable drag to reorder
                     }
                     .listStyle(.plain)
                     .padding(.top, 8)
@@ -85,6 +96,12 @@ struct HomeView: View {
         }
         .navigationTitle("Gear Tracker")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            EditButton() // System edit button for easier sorting and deleting
+        }
+        .sheet(item: $editingProduct) { product in
+            RenameSheet(product: product)
+        }
     }
     
     private var inputSection: some View {
@@ -126,13 +143,14 @@ struct HomeView: View {
         let parser = UniversalParser()
         Task {
             if let info = await parser.fetchProduct(from: urlInput) {
-                // Ensure imageURL is passed to the new Product
+                // New products go to the end of the list
                 let newProduct = Product(
                     name: info.name,
                     urlString: urlInput,
                     imageURL: info.imageURL,
                     targetPrice: info.price,
-                    currentPrice: info.price
+                    currentPrice: info.price,
+                    sortOrder: products.count
                 )
                 await MainActor.run {
                     modelContext.insert(newProduct)
@@ -151,67 +169,59 @@ struct HomeView: View {
         for index in offsets {
             modelContext.delete(products[index])
         }
+        updateSortOrders()
+    }
+    
+    private func moveItems(from source: IndexSet, to destination: Int) {
+        var revisedItems = products
+        revisedItems.move(fromOffsets: source, toOffset: destination)
+        
+        // Update the sortOrder of each product based on its new position
+        for (index, item) in revisedItems.enumerated() {
+            item.sortOrder = index
+        }
+    }
+    
+    private func updateSortOrders() {
+        for (index, item) in products.enumerated() {
+            item.sortOrder = index
+        }
     }
 }
 
-// MARK: - Settings View
-struct SettingsView: View {
+// MARK: - Rename Sheet
+struct RenameSheet: View {
+    @Environment(\.dismiss) var dismiss
+    @Bindable var product: Product
+    @State private var newName: String = ""
+    
     var body: some View {
-        List {
-            Section {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack {
-                        Image(systemName: "checkmark.seal.fill")
-                            .foregroundColor(.blue)
-                            .font(.title3)
-                        Text("Supported Sites")
-                            .font(.headline)
+        NavigationStack {
+            Form {
+                TextField("Product Name", text: $newName)
+                    .onAppear {
+                        newName = product.name
                     }
-                    
-                    Text("Current supported e-commerce platforms:")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
-                    Divider()
-                    
-                    HStack(alignment: .top) {
-                        Image(systemName: "cart.fill")
-                            .foregroundColor(.orange)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Shopify Stores")
-                                .font(.system(.body, design: .rounded))
-                                .fontWeight(.semibold)
-                            Text("Such as Skiis & Biikes, Burton, Salomon and local gear shops.")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-
-                    HStack(alignment: .top) {
-                        Image(systemName: "cart.fill")
-                            .foregroundColor(.green)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Corbetts")
-                                .font(.system(.body, design: .rounded))
-                                .fontWeight(.semibold)
-                            Text("Custom extraction support for Corbetts.com prices.")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
+            }
+            .navigationTitle("Rename Item")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        product.name = newName
+                        dismiss()
                     }
                 }
-                .padding(.vertical, 8)
-            } header: {
-                Text("Compatibility")
-            } footer: {
-                Text("More sites are being added...")
             }
         }
-        .navigationTitle("Settings")
+        .presentationDetents([.height(200)])
     }
 }
 
-// MARK: - Product Card View with Image Support
+// MARK: - Product Card View
 struct ProductCardView: View {
     let product: Product
     
@@ -235,7 +245,6 @@ struct ProductCardView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Product Image or Icon
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isPriceDropped ? Color.red.opacity(0.1) : Color.blue.opacity(0.1))
