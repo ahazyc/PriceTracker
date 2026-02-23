@@ -51,6 +51,7 @@ struct HomeView: View {
     
     @State private var urlInput: String = ""
     @State private var isAnalyzing: Bool = false
+    @State private var isRefreshing: Bool = false // Track refresh status
     @State private var editingProduct: Product? = nil
     
     var body: some View {
@@ -91,16 +92,74 @@ struct HomeView: View {
                     }
                     .listStyle(.plain)
                     .padding(.top, 8)
+                    .refreshable {
+                        await refreshAllPrices() // Standard pull-to-refresh
+                    }
+                }
+            }
+            
+            // Loading overlay for bulk refresh
+            if isRefreshing {
+                VStack {
+                    ProgressView("Updating Prices...")
+                        .padding()
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(10)
                 }
             }
         }
         .navigationTitle("Gear Tracker")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            EditButton()
+            ToolbarItem(placement: .navigationBarTrailing) {
+                HStack {
+                    Button(action: {
+                        Task { await refreshAllPrices() }
+                    }) {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                    .disabled(isRefreshing)
+                    
+                    EditButton()
+                }
+            }
         }
         .sheet(item: $editingProduct) { product in
             EditProductSheet(product: product)
+        }
+        .onAppear {
+            // Auto-refresh when app opens (optional, can be limited to once a day)
+            Task { await refreshAllPrices() }
+        }
+    }
+    
+    // MARK: - Logic: Refresh All Prices
+    private func refreshAllPrices() async {
+        guard !products.isEmpty else { return }
+        
+        await MainActor.run { isRefreshing = true }
+        let parser = UniversalParser()
+        
+        // Use a TaskGroup or simple loop to update each product
+        for product in products {
+            if let info = await parser.fetchProduct(from: product.urlString) {
+                await MainActor.run {
+                    product.currentPrice = info.price
+                    // If image is missing but now found, update it
+                    if product.localImageName == nil, let imgURL = info.imageURL {
+                        Task {
+                            let local = await ImageStorage.saveImage(from: imgURL, id: product.id)
+                            product.localImageName = local
+                        }
+                    }
+                }
+            }
+        }
+        
+        await MainActor.run {
+            try? modelContext.save()
+            isRefreshing = false
+            WidgetCenter.shared.reloadAllTimelines() // Sync widget immediately
         }
     }
     
@@ -145,7 +204,6 @@ struct HomeView: View {
         
         Task {
             if let info = await parser.fetchProduct(from: urlInput) {
-                // 🚀 Download and Cache Image Locally
                 var localName: String? = nil
                 if let imgURL = info.imageURL {
                     localName = await ImageStorage.saveImage(from: imgURL, id: productID)
@@ -160,7 +218,7 @@ struct HomeView: View {
                     currentPrice: info.price,
                     sortOrder: products.count
                 )
-                newProduct.id = productID // Match the ID used for file name
+                newProduct.id = productID
                 
                 await MainActor.run {
                     modelContext.insert(newProduct)
@@ -291,7 +349,6 @@ struct ProductCardView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Priority: Use Cached Image
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isPriceDropped ? Color.red.opacity(0.1) : Color.blue.opacity(0.1))
