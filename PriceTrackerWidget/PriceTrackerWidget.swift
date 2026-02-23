@@ -7,7 +7,7 @@ struct ProductEntry {
     let name: String
     let currentPrice: Double
     let initialPrice: Double
-    let localImageName: String? // Name of the cached file
+    let localImageName: String?
 }
 
 struct Provider: TimelineProvider {
@@ -22,15 +22,12 @@ struct Provider: TimelineProvider {
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-        let entries = fetchProducts()
-        completion(SimpleEntry(date: Date(), productEntries: entries))
+        completion(SimpleEntry(date: Date(), productEntries: fetchProducts()))
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
         let entries = fetchProducts()
-        let entry = SimpleEntry(date: Date(), productEntries: entries)
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 30, to: Date())!
-        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
+        let timeline = Timeline(entries: [SimpleEntry(date: Date(), productEntries: entries)], policy: .after(Calendar.current.date(byAdding: .minute, value: 15, to: Date())!))
         completion(timeline)
     }
 
@@ -61,51 +58,51 @@ struct SimpleEntry: TimelineEntry {
     let productEntries: [ProductEntry]
 }
 
-struct StatusBadge: View {
-    let current: Double
-    let initial: Double
-    
-    var body: some View {
-        if current < initial {
-            Text("低价").font(.system(size: 8, weight: .bold)).foregroundColor(.white).padding(.horizontal, 4).padding(.vertical, 2).background(Color.red).cornerRadius(3)
-        } else if current > initial {
-            Text("高价").font(.system(size: 8, weight: .bold)).foregroundColor(.white).padding(.horizontal, 4).padding(.vertical, 2).background(Color.orange).cornerRadius(3)
-        } else {
-            Text("原价").font(.system(size: 8, weight: .bold)).foregroundColor(.white).padding(.horizontal, 4).padding(.vertical, 2).background(Color.gray).cornerRadius(3)
-        }
-    }
-}
-
 struct ProductCell: View {
     let entry: ProductEntry
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 2) {
             ZStack {
-                RoundedRectangle(cornerRadius: 6)
+                RoundedRectangle(cornerRadius: 4)
                     .fill(Color.secondary.opacity(0.1))
-                    .frame(height: 40)
+                    .frame(height: 35)
                 
-                // 🚀 Read from App Group Local Storage
+                // 🚀 FIXED: Robust path construction for Widget access
                 if let localName = entry.localImageName,
-                   let sharedURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.ahazyc.PriceTracker"),
-                   let uiImage = UIImage(contentsOfFile: sharedURL.appendingPathComponent(localName).path) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(height: 40)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                   let sharedURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.ahazyc.PriceTracker") {
+                    let fileURL = sharedURL.appendingPathComponent("Library/Caches").appendingPathComponent(localName)
+                    
+                    if let uiImage = UIImage(contentsOfFile: fileURL.path) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(height: 35)
+                            .clipShape(RoundedRectangle(cornerRadius: 4))
+                    } else {
+                        Image(systemName: "snowboard").font(.system(size: 10)).foregroundColor(.blue)
+                    }
                 } else {
-                    Image(systemName: "snowboard").font(.system(size: 14)).foregroundColor(.blue)
+                    Image(systemName: "snowboard").font(.system(size: 10)).foregroundColor(.blue)
                 }
             }
             
-            Text(entry.name).font(.system(size: 9, weight: .medium)).lineLimit(1)
-            StatusBadge(current: entry.currentPrice, initial: entry.initialPrice)
+            Text(entry.name).font(.system(size: 8, weight: .bold)).lineLimit(1)
+            
+            let status = entry.currentPrice < entry.initialPrice ? "低价" : (entry.currentPrice > entry.initialPrice ? "高价" : "原价")
+            let color = entry.currentPrice < entry.initialPrice ? Color.red : (entry.currentPrice > entry.initialPrice ? Color.orange : Color.gray)
+            
+            Text(status)
+                .font(.system(size: 7, weight: .black))
+                .foregroundColor(.white)
+                .padding(.horizontal, 3)
+                .padding(.vertical, 1)
+                .background(color)
+                .cornerRadius(2)
         }
         .padding(4)
         .background(Color.white.opacity(0.05))
-        .cornerRadius(8)
+        .cornerRadius(6)
     }
 }
 
@@ -123,9 +120,9 @@ struct PriceTrackerWidgetEntryView : View {
     var body: some View {
         VStack(spacing: 4) {
             if entry.productEntries.isEmpty {
-                Text("No gear found").font(.caption2).foregroundColor(.secondary)
+                Text("No Data").font(.caption2).foregroundColor(.secondary)
             } else {
-                LazyVGrid(columns: columns, spacing: 8) {
+                LazyVGrid(columns: columns, spacing: 6) {
                     ForEach(entry.productEntries, id: \.id) { productEntry in
                         ProductCell(entry: productEntry)
                     }
@@ -143,8 +140,6 @@ struct PriceTrackerWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             PriceTrackerWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Gear Grid")
-        .description("Offline-first gear tracking.")
         .supportedFamilies([.systemSmall, .systemMedium])
     }
 }
