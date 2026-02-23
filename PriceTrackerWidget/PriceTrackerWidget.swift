@@ -7,7 +7,7 @@ struct ProductEntry {
     let name: String
     let currentPrice: Double
     let initialPrice: Double
-    let localImageName: String? // Field to hold the cached filename
+    let localImageName: String?
 }
 
 struct Provider: TimelineProvider {
@@ -18,7 +18,7 @@ struct Provider: TimelineProvider {
     }()
 
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), productEntries: Array(repeating: ProductEntry(id: UUID(), name: "Gear", currentPrice: 100, initialPrice: 100, localImageName: nil), count: 4))
+        SimpleEntry(date: Date(), productEntries: [])
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
@@ -26,17 +26,34 @@ struct Provider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        completion(Timeline(entries: [SimpleEntry(date: Date(), productEntries: fetchProducts(limit: 8))], policy: .atEnd))
+        let entries = fetchProducts(limit: 8)
+        // Refresh every 15 minutes or when notified
+        let timeline = Timeline(entries: [SimpleEntry(date: Date(), productEntries: entries)], policy: .atEnd)
+        completion(timeline)
     }
 
     private func fetchProducts(limit: Int) -> [ProductEntry] {
         guard let container = Self.sharedContainer else { return [] }
         let context = ModelContext(container)
-        let descriptor = FetchDescriptor<Product>(sortBy: [SortDescriptor(\.addedDate, order: .reverse)])
+        
+        // 🚀 Fix: Use sortOrder to match Main App exactly
+        let descriptor = FetchDescriptor<Product>(sortBy: [SortDescriptor(\.sortOrder, order: .forward)])
+        
         do {
             let products = try context.fetch(descriptor)
-            return products.prefix(limit).map { ProductEntry(id: $0.id, name: $0.name, currentPrice: $0.currentPrice, initialPrice: $0.initialPrice, localImageName: $0.localImageName) }
-        } catch { return [] }
+            print("DEBUG: [Widget] Fetched \(products.count) products from DB")
+            return products.prefix(limit).map { 
+                ProductEntry(
+                    id: $0.id, 
+                    name: $0.name, 
+                    currentPrice: $0.currentPrice, 
+                    initialPrice: $0.initialPrice, 
+                    localImageName: $0.localImageName
+                ) 
+            }
+        } catch { 
+            return [] 
+        }
     }
 }
 
@@ -49,10 +66,10 @@ struct ProductSquareCell: View {
     let entry: ProductEntry?
     
     var body: some View {
-        if let entry = entry {
-            let isLow = entry.currentPrice < entry.initialPrice
-            VStack(spacing: 2) {
-                // 🚀 Image or Icon Area
+        VStack(spacing: 2) {
+            if let entry = entry {
+                let isLow = entry.currentPrice < entry.initialPrice
+                
                 ZStack {
                     RoundedRectangle(cornerRadius: 4)
                         .fill(Color.secondary.opacity(0.1))
@@ -61,7 +78,6 @@ struct ProductSquareCell: View {
                     if let localName = entry.localImageName,
                        let sharedURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.ahazyc.PriceTracker") {
                         let fileURL = sharedURL.appendingPathComponent("Library/Caches").appendingPathComponent(localName)
-                        
                         if let data = try? Data(contentsOf: fileURL), let uiImage = UIImage(data: data) {
                             Image(uiImage: uiImage)
                                 .resizable()
@@ -79,7 +95,6 @@ struct ProductSquareCell: View {
                 Text(entry.name)
                     .font(.system(size: 8, weight: .bold))
                     .lineLimit(1)
-                    .foregroundColor(.primary)
                 
                 Text(isLow ? "SALE" : "BASE")
                     .font(.system(size: 6, weight: .heavy))
@@ -88,17 +103,24 @@ struct ProductSquareCell: View {
                     .padding(.vertical, 1)
                     .background(isLow ? Color.red : Color.blue)
                     .cornerRadius(2)
+            } else {
+                // 🚀 Improved: Visible Placeholder for empty slots
+                VStack(spacing: 4) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 10))
+                    Text("Empty")
+                        .font(.system(size: 6))
+                }
+                .foregroundColor(.gray.opacity(0.3))
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(isLow ? Color.red.opacity(0.08) : Color.blue.opacity(0.03))
-            .cornerRadius(8)
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(isLow ? Color.red.opacity(0.4) : Color.blue.opacity(0.2), lineWidth: 1)
-            )
-        } else {
-            Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(entry != nil ? (entry!.currentPrice < entry!.initialPrice ? Color.red.opacity(0.08) : Color.blue.opacity(0.03)) : Color.clear)
+        .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(entry != nil ? (entry!.currentPrice < entry!.initialPrice ? Color.red.opacity(0.4) : Color.blue.opacity(0.2)) : Color.gray.opacity(0.1), lineWidth: 1)
+        )
     }
     
     private func statusIcon(isLow: Bool) -> some View {
@@ -116,8 +138,8 @@ struct PriceTrackerWidgetEntryView : View {
         VStack(spacing: 6) {
             if entry.productEntries.isEmpty {
                 VStack(spacing: 4) {
-                    Image(systemName: "plus.square.dashed").font(.title2)
-                    Text("No Items").font(.caption2)
+                    Image(systemName: "cart.badge.plus").font(.title2)
+                    Text("Add gear in App").font(.system(size: 10))
                 }.foregroundColor(.secondary)
             } else {
                 if family == .systemSmall {
@@ -165,7 +187,7 @@ struct PriceTrackerWidget: Widget {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
             PriceTrackerWidgetEntryView(entry: entry)
         }
-        .configurationDisplayName("Gear Monitor")
+        .configurationDisplayName("Gear Tracker")
         .supportedFamilies([.systemSmall, .systemMedium])
         .contentMarginsDisabled()
     }

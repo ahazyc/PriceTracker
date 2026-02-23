@@ -8,7 +8,6 @@ struct ProductInfo {
 
 class UniversalParser {
     func fetchProduct(from urlString: String) async -> ProductInfo? {
-        // Fix: Ensure the URL has a scheme (https://)
         var finalURLString = urlString.trimmingCharacters(in: .whitespacesAndNewlines)
         if !finalURLString.lowercased().hasPrefix("http://") && !finalURLString.lowercased().hasPrefix("https://") {
             finalURLString = "https://" + finalURLString
@@ -18,31 +17,25 @@ class UniversalParser {
         
         // Amazon support
         if finalURLString.contains("amazon.") {
-            print("DEBUG: [Parser] Entering Amazon specific parser")
-            if let info = await fetchViaAmazonHTML(finalURLString) {
-                return info
-            }
+            if let info = await fetchViaAmazonHTML(finalURLString) { return info }
         }
         
         // Shopify
         if finalURLString.contains("products/") {
             let baseParams = finalURLString.components(separatedBy: "?")[0]
             let jsonURL = baseParams + ".js"
-            if let info = await fetchViaShopifyJSON(jsonURL) {
-                return info
-            }
+            if let info = await fetchViaShopifyJSON(jsonURL) { return info }
         }
         
         // Corbetts
         if finalURLString.contains("corbetts.com") {
-            if let info = await fetchViaCorbettsHTML(finalURLString) {
-                return info
-            }
+            if let info = await fetchViaCorbettsHTML(finalURLString) { return info }
         }
         
         return await fetchViaHTML(finalURLString)
     }
     
+    // ... Amazon and Shopify methods remain unchanged ...
     private func fetchViaAmazonHTML(_ urlString: String) async -> ProductInfo? {
         guard let url = URL(string: urlString) else { return nil }
         var request = URLRequest(url: url)
@@ -53,7 +46,6 @@ class UniversalParser {
             guard let html = String(data: data, encoding: .utf8) else { return nil }
             let range = NSRange(html.startIndex..<html.endIndex, in: html)
 
-            // 1. Extract Price (Multi-pattern)
             let pricePatterns = [
                 #"class="a-offscreen">\$([0-9,.]+)"#,
                 #"\"priceAmount\":([0-9.]+)"#,
@@ -71,7 +63,6 @@ class UniversalParser {
                 }
             }
             
-            // 2. Extract Name
             let namePattern = #"id="productTitle".*?>(.*?)</span>"#
             let nameRegex = try NSRegularExpression(pattern: namePattern, options: [.dotMatchesLineSeparators])
             var extractedName = "Amazon Item"
@@ -81,16 +72,14 @@ class UniversalParser {
                 }
             }
             
-            // 3. Extract Image (Multi-strategy)
             var extractedImgURL: String? = nil
             let imgPatterns = [
-                #"property="og:image" content="(.*?)""#, // Meta tag
-                #"data-old-hires="(.*?)""#, // Amazon high-res
-                #"data-a-dynamic-image="\{(.*?):"#, // Main image map
-                #"\"landingImage\":\"(.*?)\""#, // JSON data
-                #"id="landingImage".*?src="(.*?)""# // Fallback src
+                #"property="og:image" content="(.*?)""#,
+                #"data-old-hires="(.*?)""#,
+                #"data-a-dynamic-image="\{(.*?):"#,
+                #"\"landingImage\":\"(.*?)\""#,
+                #"id="landingImage".*?src="(.*?)""#
             ]
-            
             for pattern in imgPatterns {
                 let regex = try NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
                 if let match = regex.firstMatch(in: html, options: [], range: range) {
@@ -98,7 +87,6 @@ class UniversalParser {
                         let candidate = String(html[iRange]).replacingOccurrences(of: "\\/", with: "/")
                         if candidate.hasPrefix("http") {
                             extractedImgURL = candidate
-                            print("DEBUG: [Amazon] Found image using pattern [\(pattern)]: \(extractedImgURL!)")
                             break
                         }
                     }
@@ -113,7 +101,7 @@ class UniversalParser {
         }
         return nil
     }
-    
+
     private func fetchViaShopifyJSON(_ urlString: String) async -> ProductInfo? {
         guard let url = URL(string: urlString) else { return nil }
         do {
@@ -132,7 +120,7 @@ class UniversalParser {
         }
         return nil
     }
-    
+
     private func fetchViaCorbettsHTML(_ urlString: String) async -> ProductInfo? {
         guard let url = URL(string: urlString) else { return nil }
         do {
@@ -140,16 +128,30 @@ class UniversalParser {
             guard let html = String(data: data, encoding: .utf8) else { return nil }
             let range = NSRange(html.startIndex..<html.endIndex, in: html)
 
-            let pricePattern = "Now: CAD \\$([0-9,.]+)"
-            let priceRegex = try NSRegularExpression(pattern: pricePattern, options: [])
+            // 🚀 Improved: More relaxed regex for Corbetts price
+            // Tries to match "Now: ... $1,149.99" allowing for extra text/spaces
+            let pricePatterns = [
+                #"Now:.*?\$([0-9,.]+)"#,
+                #"CAD\s*\$([0-9,.]+)"#,
+                #"class="price--withoutTax">\$([0-9,.]+)"#
+            ]
+            
             var extractedPrice: Double = 0.0
-            if let match = priceRegex.firstMatch(in: html, options: [], range: range) {
-                if let pRange = Range(match.range(at: 1), in: html) {
-                    let pStr = html[pRange].replacingOccurrences(of: ",", with: "")
-                    extractedPrice = Double(pStr) ?? 0.0
+            for pattern in pricePatterns {
+                let regex = try NSRegularExpression(pattern: pattern, options: [.caseInsensitive])
+                if let match = regex.firstMatch(in: html, options: [], range: range) {
+                    if let pRange = Range(match.range(at: 1), in: html) {
+                        let pStr = html[pRange].replacingOccurrences(of: ",", with: "")
+                        extractedPrice = Double(pStr) ?? 0.0
+                        if extractedPrice > 0 { 
+                            print("DEBUG: [Corbetts] Found price: \(extractedPrice)")
+                            break 
+                        }
+                    }
                 }
             }
             
+            // Image extraction
             let imgPattern = #"property="og:image" content="(.*?)""#
             let imgRegex = try NSRegularExpression(pattern: imgPattern, options: [.caseInsensitive])
             var extractedImgURL: String? = nil
@@ -170,6 +172,8 @@ class UniversalParser {
             
             if extractedPrice > 0 {
                 return ProductInfo(name: extractedName, price: extractedPrice, imageURL: extractedImgURL)
+            } else {
+                print("DEBUG: [Corbetts] Price extraction failed.")
             }
         } catch {
             print("DEBUG: [Corbetts] Error: \(error)")
