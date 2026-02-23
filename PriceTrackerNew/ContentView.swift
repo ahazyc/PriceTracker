@@ -359,9 +359,9 @@ struct ProductCardView: View {
             Spacer()
             
             VStack(alignment: .trailing, spacing: 4) {
-                // Top: Large Current Price
+                // Top: Large Current Price (Increased font size)
                 Text("$\(product.currentPrice, specifier: "%.2f")")
-                    .font(.system(.title3, design: .rounded))
+                    .font(.system(.title2, design: .rounded))
                     .fontWeight(.bold)
                     .foregroundColor(isPriceDropped ? .red : .primary)
                     .lineLimit(1)
