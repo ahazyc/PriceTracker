@@ -10,6 +10,15 @@ class UniversalParser {
     func fetchProduct(from urlString: String) async -> ProductInfo? {
         print("DEBUG: [Parser] Starting analysis for URL: \(urlString)")
         
+        // Amazon support
+        if urlString.contains("amazon.") {
+            print("DEBUG: [Parser] Entering Amazon specific parser")
+            if let info = await fetchViaAmazonHTML(urlString) {
+                return info
+            }
+        }
+        
+        // Shopify
         if urlString.contains("products/") {
             let baseParams = urlString.components(separatedBy: "?")[0]
             let jsonURL = baseParams + ".js"
@@ -18,6 +27,7 @@ class UniversalParser {
             }
         }
         
+        // Corbetts
         if urlString.contains("corbetts.com") {
             if let info = await fetchViaCorbettsHTML(urlString) {
                 return info
@@ -27,6 +37,63 @@ class UniversalParser {
         return await fetchViaHTML(urlString)
     }
     
+    private func fetchViaAmazonHTML(_ urlString: String) async -> ProductInfo? {
+        guard let url = URL(string: urlString) else { return nil }
+        var request = URLRequest(url: url)
+        // 🚨 CRITICAL: Mask User-Agent to look like a real browser to avoid Amazon's bot detection
+        request.setValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15", forHTTPHeaderField: "User-Agent")
+        
+        do {
+            let (data, _) = try await URLSession.shared.data(for: request)
+            guard let html = String(data: data, encoding: .utf8) else { return nil }
+            let range = NSRange(html.startIndex..<html.endIndex, in: html)
+
+            // 1. Extract Price (Amazon typically uses <span class="a-offscreen">$XX.XX</span>)
+            // Pattern: class=\"a-offscreen\">\$([0-9,.]+)
+            let pricePattern = #"class="a-offscreen">\$([0-9,.]+)"#
+            let priceRegex = try NSRegularExpression(pattern: pricePattern, options: [])
+            var extractedPrice: Double = 0.0
+            if let match = priceRegex.firstMatch(in: html, options: [], range: range) {
+                if let pRange = Range(match.range(at: 1), in: html) {
+                    let pStr = html[pRange].replacingOccurrences(of: ",", with: "")
+                    extractedPrice = Double(pStr) ?? 0.0
+                    print("DEBUG: [Amazon] Extracted Price: \(extractedPrice)")
+                }
+            }
+            
+            // 2. Extract Name (Amazon uses <span id="productTitle">)
+            let namePattern = #"id="productTitle".*?>(.*?)</span>"#
+            let nameRegex = try NSRegularExpression(pattern: namePattern, options: [.dotMatchesLineSeparators])
+            var extractedName = "Amazon Item"
+            if let match = nameRegex.firstMatch(in: html, options: [], range: range) {
+                if let nRange = Range(match.range(at: 1), in: html) {
+                    extractedName = String(html[nRange]).trimmingCharacters(in: .whitespacesAndNewlines)
+                    print("DEBUG: [Amazon] Extracted Name: \(extractedName)")
+                }
+            }
+            
+            // 3. Extract Image (OpenGraph or landingImage)
+            let imgPattern = #"property="og:image" content="(.*?)""#
+            let imgRegex = try NSRegularExpression(pattern: imgPattern, options: [.caseInsensitive])
+            var extractedImgURL: String? = nil
+            if let match = imgRegex.firstMatch(in: html, options: [], range: range) {
+                if let iRange = Range(match.range(at: 1), in: html) {
+                    extractedImgURL = String(html[iRange])
+                    print("DEBUG: [Amazon] Extracted Image: \(extractedImgURL ?? "nil")")
+                }
+            }
+            
+            if extractedPrice > 0 {
+                return ProductInfo(name: extractedName, price: extractedPrice, imageURL: extractedImgURL)
+            } else {
+                print("DEBUG: [Amazon] Failed to extract price. The HTML might be a verification page.")
+            }
+        } catch {
+            print("DEBUG: [Amazon] Parse error: \(error)")
+        }
+        return nil
+    }
+    
     private func fetchViaShopifyJSON(_ urlString: String) async -> ProductInfo? {
         guard let url = URL(string: urlString) else { return nil }
         do {
@@ -34,7 +101,6 @@ class UniversalParser {
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
                 let name = json["title"] as? String ?? "Unknown Product"
                 let priceRaw = json["price"] as? Double ?? 0.0
-                // Shopify: Get featured_image and prefix with https: if needed
                 var imgURL = json["featured_image"] as? String
                 if let url = imgURL, url.hasPrefix("//") {
                     imgURL = "https:" + url
@@ -54,7 +120,6 @@ class UniversalParser {
             guard let html = String(data: data, encoding: .utf8) else { return nil }
             let range = NSRange(html.startIndex..<html.endIndex, in: html)
 
-            // 1. Extract Price
             let pricePattern = "Now: CAD \\$([0-9,.]+)"
             let priceRegex = try NSRegularExpression(pattern: pricePattern, options: [])
             var extractedPrice: Double = 0.0
@@ -65,7 +130,6 @@ class UniversalParser {
                 }
             }
             
-            // 2. Extract Image from OpenGraph (og:image)
             let imgPattern = #"property="og:image" content="(.*?)""#
             let imgRegex = try NSRegularExpression(pattern: imgPattern, options: [.caseInsensitive])
             var extractedImgURL: String? = nil
@@ -75,7 +139,6 @@ class UniversalParser {
                 }
             }
             
-            // 3. Extract Name
             let titlePattern = "<title>(.*?)</title>"
             let titleRegex = try NSRegularExpression(pattern: titlePattern, options: [.caseInsensitive])
             var extractedName = "Corbetts Item"
