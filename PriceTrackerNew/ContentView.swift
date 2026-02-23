@@ -368,17 +368,22 @@ struct ProductCardView: View {
                             .padding(.vertical, 2)
                             .background(Color.red)
                             .cornerRadius(4)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
                     
                     Text("$\(product.currentPrice, specifier: "%.2f")")
                         .font(.system(.title3, design: .rounded))
                         .fontWeight(.bold)
                         .foregroundColor(isPriceDropped ? .red : .primary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
                 
                 Text("Recorded: $\(product.initialPrice, specifier: "%.2f")")
                     .font(.system(size: 10))
                     .foregroundColor(.secondary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
             }
         }
         .padding(16)
