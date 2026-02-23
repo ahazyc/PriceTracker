@@ -59,11 +59,13 @@ struct HomeView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
+                // Input section for new links
                 inputSection
                     .padding()
                     .background(Color(UIColor.systemBackground))
                     .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 5)
                 
+                // Gear list
                 if products.isEmpty {
                     ContentUnavailableView(
                         "Inventory Empty",
@@ -221,7 +223,64 @@ struct RenameSheet: View {
     }
 }
 
-// MARK: - Product Card View
+// MARK: - Settings View showing compatibility
+struct SettingsView: View {
+    var body: some View {
+        List {
+            Section {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundColor(.blue)
+                            .font(.title3)
+                        Text("Supported Sites")
+                            .font(.headline)
+                    }
+                    
+                    Text("Current supported e-commerce platforms:")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Divider()
+                    
+                    HStack(alignment: .top) {
+                        Image(systemName: "cart.fill")
+                            .foregroundColor(.orange)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Shopify Stores")
+                                .font(.system(.body, design: .rounded))
+                                .fontWeight(.semibold)
+                            Text("Such as Skiis & Biikes, Burton, Salomon and local gear shops.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+
+                    HStack(alignment: .top) {
+                        Image(systemName: "cart.fill")
+                            .foregroundColor(.green)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Corbetts")
+                                .font(.system(.body, design: .rounded))
+                                .fontWeight(.semibold)
+                            Text("Custom extraction support for Corbetts.com prices.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+                .padding(.vertical, 8)
+            } header: {
+                Text("Compatibility")
+            } footer: {
+                Text("More sites are being added...")
+            }
+        }
+        .navigationTitle("Settings")
+    }
+}
+
+// MARK: - Product Card View with price drop indicators
 struct ProductCardView: View {
     let product: Product
     
@@ -245,6 +304,7 @@ struct ProductCardView: View {
     
     var body: some View {
         HStack(spacing: 16) {
+            // Product Image or Icon
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isPriceDropped ? Color.red.opacity(0.1) : Color.blue.opacity(0.1))
