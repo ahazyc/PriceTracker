@@ -44,7 +44,7 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Home View with Management Features
+// MARK: - Home View
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Product.sortOrder) var products: [Product]
@@ -109,7 +109,7 @@ struct HomeView: View {
             HStack {
                 Image(systemName: "link")
                     .foregroundColor(.secondary)
-                TextField("Paste link (Shopify/Corbetts)...", text: $urlInput)
+                TextField("Paste link (Shopify/Corbetts/Amazon)...", text: $urlInput)
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
             }
@@ -141,36 +141,49 @@ struct HomeView: View {
         guard !urlInput.isEmpty else { return }
         isAnalyzing = true
         let parser = UniversalParser()
+        let productID = UUID()
+        
         Task {
             if let info = await parser.fetchProduct(from: urlInput) {
+                // 🚀 Download and Cache Image Locally
+                var localName: String? = nil
+                if let imgURL = info.imageURL {
+                    localName = await ImageStorage.saveImage(from: imgURL, id: productID)
+                }
+                
                 let newProduct = Product(
                     name: info.name,
                     urlString: urlInput,
                     imageURL: info.imageURL,
+                    localImageName: localName,
                     targetPrice: info.price,
                     currentPrice: info.price,
                     sortOrder: products.count
                 )
+                newProduct.id = productID // Match the ID used for file name
+                
                 await MainActor.run {
                     modelContext.insert(newProduct)
                     urlInput = ""
                     isAnalyzing = false
-                    WidgetCenter.shared.reloadAllTimelines() // Notify widget to update
+                    WidgetCenter.shared.reloadAllTimelines()
                 }
             } else {
-                await MainActor.run {
-                    isAnalyzing = false
-                }
+                await MainActor.run { isAnalyzing = false }
             }
         }
     }
 
     private func deleteItems(offsets: IndexSet) {
         for index in offsets {
-            modelContext.delete(products[index])
+            let product = products[index]
+            if let localName = product.localImageName {
+                ImageStorage.deleteImage(fileName: localName)
+            }
+            modelContext.delete(product)
         }
         updateSortOrders()
-        WidgetCenter.shared.reloadAllTimelines() // Notify widget
+        WidgetCenter.shared.reloadAllTimelines()
     }
     
     private func moveItems(from source: IndexSet, to destination: Int) {
@@ -179,6 +192,7 @@ struct HomeView: View {
         for (index, item) in revisedItems.enumerated() {
             item.sortOrder = index
         }
+        WidgetCenter.shared.reloadAllTimelines()
     }
     
     private func updateSortOrders() {
@@ -210,9 +224,6 @@ struct EditProductSheet: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                     }
-                    Text("This is the baseline price used to calculate discounts.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
                 }
             }
             .navigationTitle("Edit Item")
@@ -230,6 +241,7 @@ struct EditProductSheet: View {
                         product.name = newName
                         product.initialPrice = newInitialPrice
                         dismiss()
+                        WidgetCenter.shared.reloadAllTimelines()
                     }
                 }
             }
@@ -238,57 +250,22 @@ struct EditProductSheet: View {
     }
 }
 
-// MARK: - Settings View showing compatibility
+// MARK: - Settings View
 struct SettingsView: View {
     var body: some View {
         List {
-            Section {
+            Section("Compatibility") {
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
-                        Image(systemName: "checkmark.seal.fill")
-                            .foregroundColor(.blue)
-                            .font(.title3)
-                        Text("Supported Sites")
-                            .font(.headline)
+                        Image(systemName: "checkmark.seal.fill").foregroundColor(.blue)
+                        Text("Supported Sites").font(.headline)
                     }
-                    
-                    Text("Current supported e-commerce platforms:")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                    
                     Divider()
-                    
-                    HStack(alignment: .top) {
-                        Image(systemName: "cart.fill")
-                            .foregroundColor(.orange)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Shopify Stores")
-                                .font(.system(.body, design: .rounded))
-                                .fontWeight(.semibold)
-                            Text("Such as Skiis & Biikes, Burton, Salomon and local gear shops.")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-
-                    HStack(alignment: .top) {
-                        Image(systemName: "cart.fill")
-                            .foregroundColor(.green)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Corbetts")
-                                .font(.system(.body, design: .rounded))
-                                .fontWeight(.semibold)
-                            Text("Custom extraction support for Corbetts.com prices.")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
+                    Label("Amazon (.ca, .com)", systemImage: "cart.fill").foregroundColor(.orange)
+                    Label("Shopify Stores", systemImage: "cart.fill").foregroundColor(.green)
+                    Label("Corbetts.com", systemImage: "cart.fill").foregroundColor(.blue)
                 }
                 .padding(.vertical, 8)
-            } header: {
-                Text("Compatibility")
-            } footer: {
-                Text("More sites are being added...")
             }
         }
         .navigationTitle("Settings")
@@ -305,71 +282,50 @@ struct ProductCardView: View {
         return Int(discount)
     }
     
-    var isPriceDropped: Bool {
-        product.currentPrice < product.initialPrice
-    }
+    var isPriceDropped: Bool { product.currentPrice < product.initialPrice }
     
     var cleanDomain: String {
-        guard let url = URL(string: product.urlString),
-              let host = url.host else {
-            return "Unknown Source"
-        }
+        guard let url = URL(string: product.urlString), let host = url.host else { return "Unknown" }
         return host.replacingOccurrences(of: "www.", with: "")
     }
     
     var body: some View {
         HStack(spacing: 16) {
+            // Priority: Use Cached Image
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isPriceDropped ? Color.red.opacity(0.1) : Color.blue.opacity(0.1))
                     .frame(width: 50, height: 50)
                 
-                if let imageURLString = product.imageURL, let url = URL(string: imageURLString) {
-                    AsyncImage(url: url) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image.resizable()
-                                 .aspectRatio(contentMode: .fill)
-                                 .frame(width: 50, height: 50)
-                                 .clipShape(RoundedRectangle(cornerRadius: 12))
-                        case .failure(_), .empty:
-                            iconView
-                        @unknown default:
-                            iconView
-                        }
-                    }
+                if let localName = product.localImageName, 
+                   let localURL = ImageStorage.getLocalURL(for: localName),
+                   let uiImage = UIImage(contentsOfFile: localURL.path) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 50, height: 50)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
                 } else {
-                    iconView
+                    Image(systemName: isPriceDropped ? "arrow.down.circle.fill" : "snowboard")
+                        .font(.title2)
+                        .foregroundColor(isPriceDropped ? .red : .blue)
                 }
             }
             
             VStack(alignment: .leading, spacing: 6) {
-                Text(product.name)
-                    .font(.system(.body, design: .rounded))
-                    .fontWeight(.semibold)
-                    .lineLimit(2)
-                    .foregroundColor(.primary)
-                
-                HStack(spacing: 4) {
-                    Image(systemName: "globe")
-                        .font(.caption2)
-                    Text(cleanDomain)
-                        .font(.caption)
-                }
-                .foregroundColor(.secondary)
+                Text(product.name).font(.system(.body, design: .rounded)).fontWeight(.semibold).lineLimit(2)
+                Text(cleanDomain).font(.caption).foregroundColor(.secondary)
             }
             
             Spacer()
             
             VStack(alignment: .trailing, spacing: 4) {
-                // Top: Large Current Price (Increased font size)
                 Text("$\(product.currentPrice, specifier: "%.2f")")
                     .font(.system(.title2, design: .rounded))
                     .fontWeight(.bold)
                     .foregroundColor(isPriceDropped ? .red : .primary)
                     .lineLimit(1)
                 
-                // Middle: Discount Badge (only if applicable)
                 if isPriceDropped {
                     Text("\(discountPercentage)% OFF")
                         .font(.system(size: 10, weight: .bold))
@@ -380,7 +336,6 @@ struct ProductCardView: View {
                         .cornerRadius(4)
                 }
                 
-                // Bottom: Original Recorded Price
                 Text("Recorded: $\(product.initialPrice, specifier: "%.2f")")
                     .font(.system(size: 10))
                     .foregroundColor(.secondary)
@@ -391,11 +346,5 @@ struct ProductCardView: View {
         .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
-    }
-    
-    private var iconView: some View {
-        Image(systemName: isPriceDropped ? "arrow.down.circle.fill" : "snowboard")
-            .font(.title2)
-            .foregroundColor(isPriceDropped ? .red : .blue)
     }
 }
