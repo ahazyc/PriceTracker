@@ -5,7 +5,8 @@ import SwiftData
 struct PriceTrackerNewApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([Product.self])
-        // 🚨 关键：使用 App Group ID 确保数据跨进程共享
+        
+        // Try to use the App Group first
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
@@ -15,7 +16,17 @@ struct PriceTrackerNewApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            fatalError("无法创建 ModelContainer: \(error)")
+            // FALLBACK: If migration fails or App Group is unavailable, 
+            // try to use a default local store to prevent the app from crashing.
+            print("ERROR: SwiftData initialization failed: \(error). Falling back to local store.")
+            
+            let fallbackConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
+            do {
+                return try ModelContainer(for: schema, configurations: [fallbackConfiguration])
+            } catch {
+                // If all else fails, use in-memory store as a last resort
+                return try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
+            }
         }
     }()
 

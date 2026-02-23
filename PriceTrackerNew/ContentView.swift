@@ -43,7 +43,7 @@ struct ContentView: View {
     }
 }
 
-// MARK: - Home View with Gear List
+// MARK: - Home View
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Product.addedDate, order: .reverse) var products: [Product]
@@ -57,13 +57,11 @@ struct HomeView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Input section for new links
                 inputSection
                     .padding()
                     .background(Color(UIColor.systemBackground))
                     .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 5)
                 
-                // Gear list
                 if products.isEmpty {
                     ContentUnavailableView(
                         "Inventory Empty",
@@ -128,9 +126,11 @@ struct HomeView: View {
         let parser = UniversalParser()
         Task {
             if let info = await parser.fetchProduct(from: urlInput) {
+                // Ensure imageURL is passed to the new Product
                 let newProduct = Product(
                     name: info.name,
                     urlString: urlInput,
+                    imageURL: info.imageURL,
                     targetPrice: info.price,
                     currentPrice: info.price
                 )
@@ -154,7 +154,7 @@ struct HomeView: View {
     }
 }
 
-// MARK: - Settings View showing compatibility
+// MARK: - Settings View
 struct SettingsView: View {
     var body: some View {
         List {
@@ -211,18 +211,16 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - Product Card View with price drop indicators
+// MARK: - Product Card View with Image Support
 struct ProductCardView: View {
     let product: Product
     
-    // Calculate the percentage of price drop
     var discountPercentage: Int {
         guard product.initialPrice > product.currentPrice, product.initialPrice > 0 else { return 0 }
         let discount = ((product.initialPrice - product.currentPrice) / product.initialPrice) * 100
         return Int(discount)
     }
     
-    // Flag to determine if the price has dropped
     var isPriceDropped: Bool {
         product.currentPrice < product.initialPrice
     }
@@ -237,14 +235,29 @@ struct ProductCardView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Icon changes based on price drop status
+            // Product Image or Icon
             ZStack {
-                Circle()
+                RoundedRectangle(cornerRadius: 12)
                     .fill(isPriceDropped ? Color.red.opacity(0.1) : Color.blue.opacity(0.1))
                     .frame(width: 50, height: 50)
-                Image(systemName: isPriceDropped ? "arrow.down.circle.fill" : "snowboard")
-                    .font(.title2)
-                    .foregroundColor(isPriceDropped ? .red : .blue)
+                
+                if let imageURLString = product.imageURL, let url = URL(string: imageURLString) {
+                    AsyncImage(url: url) { phase in
+                        switch phase {
+                        case .success(let image):
+                            image.resizable()
+                                 .aspectRatio(contentMode: .fill)
+                                 .frame(width: 50, height: 50)
+                                 .clipShape(RoundedRectangle(cornerRadius: 12))
+                        case .failure(_), .empty:
+                            iconView
+                        @unknown default:
+                            iconView
+                        }
+                    }
+                } else {
+                    iconView
+                }
             }
             
             VStack(alignment: .leading, spacing: 6) {
@@ -265,7 +278,6 @@ struct ProductCardView: View {
             
             Spacer()
             
-            // Pricing info with history
             VStack(alignment: .trailing, spacing: 2) {
                 HStack(spacing: 4) {
                     if isPriceDropped {
@@ -284,7 +296,6 @@ struct ProductCardView: View {
                         .foregroundColor(isPriceDropped ? .red : .primary)
                 }
                 
-                // Smaller label showing the original recorded price
                 Text("Recorded: $\(product.initialPrice, specifier: "%.2f")")
                     .font(.system(size: 10))
                     .foregroundColor(.secondary)
@@ -294,5 +305,11 @@ struct ProductCardView: View {
         .background(Color(UIColor.secondarySystemGroupedBackground))
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 4)
+    }
+    
+    private var iconView: some View {
+        Image(systemName: isPriceDropped ? "arrow.down.circle.fill" : "snowboard")
+            .font(.title2)
+            .foregroundColor(isPriceDropped ? .red : .blue)
     }
 }
