@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 // MARK: - Sidebar Item Enum
 enum SidebarItem: String, CaseIterable, Identifiable {
@@ -154,6 +155,7 @@ struct HomeView: View {
                     modelContext.insert(newProduct)
                     urlInput = ""
                     isAnalyzing = false
+                    WidgetCenter.shared.reloadAllTimelines() // Notify widget to update
                 }
             } else {
                 await MainActor.run {
@@ -168,6 +170,7 @@ struct HomeView: View {
             modelContext.delete(products[index])
         }
         updateSortOrders()
+        WidgetCenter.shared.reloadAllTimelines() // Notify widget
     }
     
     private func moveItems(from source: IndexSet, to destination: Int) {
