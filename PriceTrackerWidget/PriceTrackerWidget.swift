@@ -7,6 +7,7 @@ struct ProductEntry {
     let name: String
     let currentPrice: Double
     let initialPrice: Double
+    let localImageName: String? // Field to hold the cached filename
 }
 
 struct Provider: TimelineProvider {
@@ -17,7 +18,7 @@ struct Provider: TimelineProvider {
     }()
 
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), productEntries: Array(repeating: ProductEntry(id: UUID(), name: "Gear", currentPrice: 100, initialPrice: 100), count: 4))
+        SimpleEntry(date: Date(), productEntries: Array(repeating: ProductEntry(id: UUID(), name: "Gear", currentPrice: 100, initialPrice: 100, localImageName: nil), count: 4))
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
@@ -34,7 +35,7 @@ struct Provider: TimelineProvider {
         let descriptor = FetchDescriptor<Product>(sortBy: [SortDescriptor(\.addedDate, order: .reverse)])
         do {
             let products = try context.fetch(descriptor)
-            return products.prefix(limit).map { ProductEntry(id: $0.id, name: $0.name, currentPrice: $0.currentPrice, initialPrice: $0.initialPrice) }
+            return products.prefix(limit).map { ProductEntry(id: $0.id, name: $0.name, currentPrice: $0.currentPrice, initialPrice: $0.initialPrice, localImageName: $0.localImageName) }
         } catch { return [] }
     }
 }
@@ -51,9 +52,29 @@ struct ProductSquareCell: View {
         if let entry = entry {
             let isLow = entry.currentPrice < entry.initialPrice
             VStack(spacing: 2) {
-                Image(systemName: isLow ? "arrow.down.circle.fill" : "minus.circle.fill")
-                    .font(.system(size: 14))
-                    .foregroundColor(isLow ? .red : .blue)
+                // 🚀 Image or Icon Area
+                ZStack {
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color.secondary.opacity(0.1))
+                        .frame(width: 35, height: 35)
+                    
+                    if let localName = entry.localImageName,
+                       let sharedURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.ahazyc.PriceTracker") {
+                        let fileURL = sharedURL.appendingPathComponent("Library/Caches").appendingPathComponent(localName)
+                        
+                        if let data = try? Data(contentsOf: fileURL), let uiImage = UIImage(data: data) {
+                            Image(uiImage: uiImage)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 35, height: 35)
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                        } else {
+                            statusIcon(isLow: isLow)
+                        }
+                    } else {
+                        statusIcon(isLow: isLow)
+                    }
+                }
                 
                 Text(entry.name)
                     .font(.system(size: 8, weight: .bold))
@@ -71,7 +92,6 @@ struct ProductSquareCell: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(isLow ? Color.red.opacity(0.08) : Color.blue.opacity(0.03))
             .cornerRadius(8)
-            // 🚀 Added: Distinct border with color difference
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(isLow ? Color.red.opacity(0.4) : Color.blue.opacity(0.2), lineWidth: 1)
@@ -79,6 +99,12 @@ struct ProductSquareCell: View {
         } else {
             Color.clear.frame(maxWidth: .infinity, maxHeight: .infinity)
         }
+    }
+    
+    private func statusIcon(isLow: Bool) -> some View {
+        Image(systemName: isLow ? "arrow.down.circle.fill" : "minus.circle.fill")
+            .font(.system(size: 14))
+            .foregroundColor(isLow ? .red : .blue)
     }
 }
 
