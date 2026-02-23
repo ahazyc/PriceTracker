@@ -6,6 +6,7 @@ class Product {
     var id: UUID
     var name: String
     var urlString: String
+    var initialPrice: Double  // The original price when added
     var targetPrice: Double
     var currentPrice: Double
     var addedDate: Date
@@ -14,6 +15,7 @@ class Product {
         self.id = UUID()
         self.name = name
         self.urlString = urlString
+        self.initialPrice = currentPrice
         self.targetPrice = targetPrice
         self.currentPrice = currentPrice
         self.addedDate = Date()

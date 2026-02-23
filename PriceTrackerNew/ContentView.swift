@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - 侧边栏项定义
+// MARK: - Sidebar Item Enum
 enum SidebarItem: String, CaseIterable, Identifiable {
     case home = "装备追踪"
     case settings = "设置"
@@ -36,14 +36,14 @@ struct ContentView: View {
                     SettingsView()
                 }
             } else {
-                Text("请选择一个选项")
+                Text("Select an option")
                     .foregroundColor(.secondary)
             }
         }
     }
 }
 
-// MARK: - 主页视图
+// MARK: - Home View with Gear List
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \Product.addedDate, order: .reverse) var products: [Product]
@@ -57,16 +57,18 @@ struct HomeView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
+                // Input section for new links
                 inputSection
                     .padding()
                     .background(Color(UIColor.systemBackground))
                     .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 5)
                 
+                // Gear list
                 if products.isEmpty {
                     ContentUnavailableView(
-                        "装备库空空如也",
+                        "Inventory Empty",
                         systemImage: "snowboard",
-                        description: Text("复制滑雪装备的链接并粘贴到上方开始追踪")
+                        description: Text("Paste a gear link to start tracking")
                     )
                 } else {
                     List {
@@ -83,7 +85,7 @@ struct HomeView: View {
                 }
             }
         }
-        .navigationTitle("装备追踪")
+        .navigationTitle("Gear Tracker")
         .navigationBarTitleDisplayMode(.inline)
     }
     
@@ -92,7 +94,7 @@ struct HomeView: View {
             HStack {
                 Image(systemName: "link")
                     .foregroundColor(.secondary)
-                TextField("粘贴装备链接 (支持 Shopify/Corbetts)...", text: $urlInput)
+                TextField("Paste link (Shopify/Corbetts)...", text: $urlInput)
                     .autocapitalization(.none)
                     .disableAutocorrection(true)
             }
@@ -107,7 +109,7 @@ struct HomeView: View {
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                         .frame(width: 20, height: 20)
                 } else {
-                    Text("添加")
+                    Text("Add")
                         .fontWeight(.bold)
                 }
             }
@@ -152,7 +154,7 @@ struct HomeView: View {
     }
 }
 
-// MARK: - 设置视图
+// MARK: - Settings View showing compatibility
 struct SettingsView: View {
     var body: some View {
         List {
@@ -162,11 +164,11 @@ struct SettingsView: View {
                         Image(systemName: "checkmark.seal.fill")
                             .foregroundColor(.blue)
                             .font(.title3)
-                        Text("支持的网站类型")
+                        Text("Supported Sites")
                             .font(.headline)
                     }
                     
-                    Text("目前我们的智能解析引擎支持以下架构：")
+                    Text("Current supported e-commerce platforms:")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                     
@@ -176,10 +178,10 @@ struct SettingsView: View {
                         Image(systemName: "cart.fill")
                             .foregroundColor(.orange)
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Shopify 官方网站")
+                            Text("Shopify Stores")
                                 .font(.system(.body, design: .rounded))
                                 .fontWeight(.semibold)
-                            Text("例如：Skiis & Biikes, Burton, Salomon 等主流户外品牌官网及第三方零售店。")
+                            Text("Such as Skiis & Biikes, Burton, Salomon and local gear shops.")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -192,7 +194,7 @@ struct SettingsView: View {
                             Text("Corbetts")
                                 .font(.system(.body, design: .rounded))
                                 .fontWeight(.semibold)
-                            Text("专门针对 Corbetts.com 的价格和名称提取支持。")
+                            Text("Custom extraction support for Corbetts.com prices.")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -200,36 +202,49 @@ struct SettingsView: View {
                 }
                 .padding(.vertical, 8)
             } header: {
-                Text("网站支持")
+                Text("Compatibility")
             } footer: {
-                Text("更多网站支持正在开发中...")
+                Text("More sites are being added...")
             }
         }
-        .navigationTitle("设置")
+        .navigationTitle("Settings")
     }
 }
 
-// MARK: - 商品卡片视图 (回滚版本)
+// MARK: - Product Card View with price drop indicators
 struct ProductCardView: View {
     let product: Product
+    
+    // Calculate the percentage of price drop
+    var discountPercentage: Int {
+        guard product.initialPrice > product.currentPrice, product.initialPrice > 0 else { return 0 }
+        let discount = ((product.initialPrice - product.currentPrice) / product.initialPrice) * 100
+        return Int(discount)
+    }
+    
+    // Flag to determine if the price has dropped
+    var isPriceDropped: Bool {
+        product.currentPrice < product.initialPrice
+    }
     
     var cleanDomain: String {
         guard let url = URL(string: product.urlString),
               let host = url.host else {
-            return "未知来源"
+            return "Unknown Source"
         }
         return host.replacingOccurrences(of: "www.", with: "")
     }
     
     var body: some View {
         HStack(spacing: 16) {
+            // Icon changes based on price drop status
             ZStack {
                 Circle()
-                    .fill(Color.blue.opacity(0.1))
+                    .fill(isPriceDropped ? Color.red.opacity(0.1) : Color.blue.opacity(0.1))
                     .frame(width: 50, height: 50)
-                Image(systemName: "snowboard")
+                Image(systemName: isPriceDropped ? "arrow.down.circle.fill" : "snowboard")
                     .font(.title2)
-                    .foregroundColor(.blue)
+                    .foregroundColor(isPriceDropped ? .red : .blue)
             }
             
             VStack(alignment: .leading, spacing: 6) {
@@ -250,19 +265,29 @@ struct ProductCardView: View {
             
             Spacer()
             
-            VStack(alignment: .trailing, spacing: 4) {
-                Text("$\(product.currentPrice, specifier: "%.2f")")
-                    .font(.system(.title3, design: .rounded))
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
+            // Pricing info with history
+            VStack(alignment: .trailing, spacing: 2) {
+                HStack(spacing: 4) {
+                    if isPriceDropped {
+                        Text("\(discountPercentage)% OFF")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 2)
+                            .background(Color.red)
+                            .cornerRadius(4)
+                    }
+                    
+                    Text("$\(product.currentPrice, specifier: "%.2f")")
+                        .font(.system(.title3, design: .rounded))
+                        .fontWeight(.bold)
+                        .foregroundColor(isPriceDropped ? .red : .primary)
+                }
                 
-                Text("实时价格")
-                    .font(.caption2)
+                // Smaller label showing the original recorded price
+                Text("Recorded: $\(product.initialPrice, specifier: "%.2f")")
+                    .font(.system(size: 10))
                     .foregroundColor(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(4)
             }
         }
         .padding(16)
