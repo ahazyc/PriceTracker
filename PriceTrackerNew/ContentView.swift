@@ -46,12 +46,11 @@ struct ContentView: View {
 // MARK: - Home View with Management Features
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
-    // Query sorted by our custom sortOrder
     @Query(sort: \Product.sortOrder) var products: [Product]
     
     @State private var urlInput: String = ""
     @State private var isAnalyzing: Bool = false
-    @State private var editingProduct: Product? = nil // Tracks the product currently being renamed
+    @State private var editingProduct: Product? = nil
     
     var body: some View {
         ZStack {
@@ -59,13 +58,11 @@ struct HomeView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Input section for new links
                 inputSection
                     .padding()
                     .background(Color(UIColor.systemBackground))
                     .shadow(color: .black.opacity(0.05), radius: 5, x: 0, y: 5)
                 
-                // Gear list
                 if products.isEmpty {
                     ContentUnavailableView(
                         "Inventory Empty",
@@ -83,13 +80,13 @@ struct HomeView: View {
                                     Button {
                                         editingProduct = product
                                     } label: {
-                                        Label("Rename", systemImage: "pencil")
+                                        Label("Edit", systemImage: "pencil")
                                     }
                                     .tint(.orange)
                                 }
                         }
                         .onDelete(perform: deleteItems)
-                        .onMove(perform: moveItems) // Enable drag to reorder
+                        .onMove(perform: moveItems)
                     }
                     .listStyle(.plain)
                     .padding(.top, 8)
@@ -99,10 +96,10 @@ struct HomeView: View {
         .navigationTitle("Gear Tracker")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
-            EditButton() // System edit button for easier sorting and deleting
+            EditButton()
         }
         .sheet(item: $editingProduct) { product in
-            RenameSheet(product: product)
+            EditProductSheet(product: product)
         }
     }
     
@@ -145,7 +142,6 @@ struct HomeView: View {
         let parser = UniversalParser()
         Task {
             if let info = await parser.fetchProduct(from: urlInput) {
-                // New products go to the end of the list
                 let newProduct = Product(
                     name: info.name,
                     urlString: urlInput,
@@ -177,8 +173,6 @@ struct HomeView: View {
     private func moveItems(from source: IndexSet, to destination: Int) {
         var revisedItems = products
         revisedItems.move(fromOffsets: source, toOffset: destination)
-        
-        // Update the sortOrder of each product based on its new position
         for (index, item) in revisedItems.enumerated() {
             item.sortOrder = index
         }
@@ -191,22 +185,39 @@ struct HomeView: View {
     }
 }
 
-// MARK: - Rename Sheet
-struct RenameSheet: View {
+// MARK: - Edit Product Sheet
+struct EditProductSheet: View {
     @Environment(\.dismiss) var dismiss
     @Bindable var product: Product
     @State private var newName: String = ""
+    @State private var newInitialPrice: Double = 0.0
     
     var body: some View {
         NavigationStack {
             Form {
-                TextField("Product Name", text: $newName)
-                    .onAppear {
-                        newName = product.name
+                Section("General Information") {
+                    TextField("Product Name", text: $newName)
+                }
+                
+                Section("Historical Reference") {
+                    HStack {
+                        Text("Recorded Price")
+                        Spacer()
+                        TextField("Amount", value: $newInitialPrice, format: .number.precision(.fractionLength(2)))
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
                     }
+                    Text("This is the baseline price used to calculate discounts.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
-            .navigationTitle("Rename Item")
+            .navigationTitle("Edit Item")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                newName = product.name
+                newInitialPrice = product.initialPrice
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -214,12 +225,13 @@ struct RenameSheet: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") {
                         product.name = newName
+                        product.initialPrice = newInitialPrice
                         dismiss()
                     }
                 }
             }
         }
-        .presentationDetents([.height(200)])
+        .presentationDetents([.medium])
     }
 }
 
@@ -280,7 +292,7 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - Product Card View with price drop indicators
+// MARK: - Product Card View
 struct ProductCardView: View {
     let product: Product
     
@@ -304,7 +316,6 @@ struct ProductCardView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Product Image or Icon
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isPriceDropped ? Color.red.opacity(0.1) : Color.blue.opacity(0.1))
