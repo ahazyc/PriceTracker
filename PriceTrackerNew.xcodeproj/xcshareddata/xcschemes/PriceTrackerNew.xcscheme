@@ -29,6 +29,30 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES"
       shouldAutocreateTestPlan = "YES">
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "540919AD2F4BC2CC00756A05"
+               BuildableName = "PriceTrackerNewTests.xctest"
+               BlueprintName = "PriceTrackerNewTests"
+               ReferencedContainer = "container:PriceTrackerNew.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "540919B72F4BC2CC00756A05"
+               BuildableName = "PriceTrackerNewUITests.xctest"
+               BlueprintName = "PriceTrackerNewUITests"
+               ReferencedContainer = "container:PriceTrackerNew.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"

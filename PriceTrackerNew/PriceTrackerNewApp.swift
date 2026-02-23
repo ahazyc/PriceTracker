@@ -3,10 +3,16 @@ import SwiftData
 
 @main
 struct PriceTrackerNewApp: App {
+    init() {
+        print("************************************************")
+        print("🚀 [PRICETRACKER] APP IS STARTING...")
+        print("************************************************")
+    }
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([Product.self])
         
-        // Try to use the App Group first
+        // 1. First try: Standard App Group
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false,
@@ -14,17 +20,21 @@ struct PriceTrackerNewApp: App {
         )
 
         do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
+            let container = try ModelContainer(for: schema, configurations: [modelConfiguration])
+            print("✅ [DEBUG] ModelContainer initialized with App Group.")
+            return container
         } catch {
-            // FALLBACK: If migration fails or App Group is unavailable, 
-            // try to use a default local store to prevent the app from crashing.
-            print("ERROR: SwiftData initialization failed: \(error). Falling back to local store.")
+            print("⚠️ [DEBUG] App Group initialization failed: \(error.localizedDescription)")
             
+            // 2. Second try: Default local storage (ignores app groups)
             let fallbackConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
             do {
-                return try ModelContainer(for: schema, configurations: [fallbackConfiguration])
+                let container = try ModelContainer(for: schema, configurations: [fallbackConfiguration])
+                print("✅ [DEBUG] ModelContainer initialized with local storage fallback.")
+                return container
             } catch {
-                // If all else fails, use in-memory store as a last resort
+                print("❌ [DEBUG] ALL disk storage failed. Using in-memory only.")
+                // 3. Final resort: In-memory only (guarantees no crash)
                 return try! ModelContainer(for: schema, configurations: [ModelConfiguration(isStoredInMemoryOnly: true)])
             }
         }
@@ -33,6 +43,9 @@ struct PriceTrackerNewApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onAppear {
+                    print("🖼️ [DEBUG] ContentView has appeared.")
+                }
         }
         .modelContainer(sharedModelContainer)
     }
